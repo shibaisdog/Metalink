@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Submission</title>
+    <script>
+        function addImageUrlField() {
+            const container = document.getElementById("image");
+            const input = document.createElement("input");
+            input.type = "url";
+            input.name = "image";
+            input.placeholder = "Enter image URL";
+            container.appendChild(input);
+            const deleteButton = document.createElement("button");
+            deleteButton.type = "button";
+            deleteButton.textContent = "Remove";
+            deleteButton.onclick = function() {
+                container.removeChild(input);
+                container.removeChild(deleteButton);
+            };
+            container.appendChild(deleteButton);
+        }
+    </script>
+</head>
+<body>
+    <form action="/submit" method="get">
+        <label for="siteurl">(required) Site URL:</label>
+        <input type="url" id="siteurl" name="siteurl" required><br><br>
+
+        <label for="sitetype">(required) Site Type:</label>
+        <select id="sitetype" name="sitetype" required>
+            <option value="website">website</option>
+        </select><br><br>
+
+        <label for="title">Title:</label>
+        <input type="text" id="title" name="title"><br><br>
+
+        <label for="description">Description:</label>
+        <textarea id="description" name="description"></textarea><br><br>
+
+        <label for="sitename">Site Name:</label>
+        <input type="text" id="sitename" name="sitename"><br><br>
+
+        <label for="color">Color:</label>
+        <input type="text" id="color" name="color"><br><br>
+
+        <label>Image URLs:</label><br>
+        <div id="image">
+            <input type="url" name="image" placeholder="Enter image URL">
+            <button type="button" onclick="removeImageUrl(this)">Remove</button>
+        </div>
+        <button type="button" onclick="addImageUrlField()">Add another image URL</button><br><br>
+
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>
