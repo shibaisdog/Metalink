@@ -2,7 +2,6 @@ package routes
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 
@@ -58,6 +57,7 @@ func SetupRouter() *gin.Engine {
 
 	router.GET("/submit", func(c *gin.Context) {
 		paramsMap := make(map[string]string)
+		var images []string
 		for _, param := range c.Params {
 			paramsMap[param.Key] = param.Value
 		}
@@ -66,6 +66,9 @@ func SetupRouter() *gin.Engine {
 			if len(values) > 0 {
 				paramsMap[key] = values[0]
 			}
+			if key == "image" {
+				images = values
+			}
 		}
 		if len(paramsMap) == 0 {
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -73,16 +76,13 @@ func SetupRouter() *gin.Engine {
 				"message": "invalid data",
 			})
 		} else {
-			scheme := "http"
-			if c.Request.TLS != nil {
-				scheme = "https"
-			}
+			scheme := "https"
 			host := c.Request.Host
 			if !CheckKey(paramsMap, "title") &&
 				!CheckKey(paramsMap, "description") &&
 				!CheckKey(paramsMap, "siteurl") &&
 				!CheckKey(paramsMap, "color") &&
-				!CheckKey(paramsMap, "image") {
+				images == nil {
 				c.JSON(http.StatusBadRequest, gin.H{
 					"status":  http.StatusBadRequest,
 					"message": "You can't leave all items blank.",
@@ -96,22 +96,27 @@ func SetupRouter() *gin.Engine {
 					"status":  http.StatusBadRequest,
 					"message": "You can't leave all items blank.",
 				})
-			} else if !CheckKey(paramsMap, "title") {
-				paramsMap["title"] = ""
-			} else if !CheckKey(paramsMap, "description") {
-				paramsMap["description"] = ""
-			} else if !CheckKey(paramsMap, "siteurl") {
-				paramsMap["siteurl"] = ""
 			} else if !CheckKey(paramsMap, "sitetype") {
 				c.JSON(http.StatusBadRequest, gin.H{
 					"status":  http.StatusBadRequest,
 					"message": "There is no sitetype",
 				})
-			} else if !CheckKey(paramsMap, "color") {
-				paramsMap["color"] = ""
-			} else if !CheckKey(paramsMap, "image") {
-				paramsMap["image"] = ""
 			} else {
+				if !CheckKey(paramsMap, "title") {
+					paramsMap["title"] = ""
+				}
+				if !CheckKey(paramsMap, "description") {
+					paramsMap["description"] = ""
+				}
+				if !CheckKey(paramsMap, "siteurl") || paramsMap["siteurl"] == "" {
+					paramsMap["siteurl"] = scheme + "://" + host
+				}
+				if !CheckKey(paramsMap, "color") {
+					paramsMap["color"] = ""
+				}
+				if images == nil {
+					images = []string{""}
+				}
 				if paramsMap["sitetype"] != "website" {
 					c.JSON(http.StatusBadRequest, gin.H{
 						"status":  http.StatusBadRequest,
@@ -125,7 +130,7 @@ func SetupRouter() *gin.Engine {
 						paramsMap["siteurl"],
 						paramsMap["sitetype"],
 						paramsMap["color"],
-						strings.Split(paramsMap["image"], ","),
+						images,
 					)
 					completeURL := scheme + "://" + host + "/api?view="
 					c.JSON(http.StatusOK, gin.H{

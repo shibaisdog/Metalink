@@ -53,6 +53,8 @@ func New_MetaLink(title, description, sitename, siteurl, sitetype, color string,
 		<body>
 		    <h2>warning! When you click, you will be directed to the corresponding URL : %s</h2>
 			<a href="%s">Redirect</a>
+			<h2>----------------------------</h2>
+			<a href="/">Try creating a meta link</a>
 		</body>
     </html>
 	`, color, color, title, title, description, siteurl, sitename, siteurl,
