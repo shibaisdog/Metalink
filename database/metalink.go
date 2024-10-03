@@ -5,7 +5,8 @@ import "fmt"
 func New_MetaLink(title, description, sitename, siteurl, sitetype, color string, image []string) string {
 	Image, Twitter_Image := "", ""
 	for _, image_url := range image {
-		Image += fmt.Sprintf(`<meta property="og:image" content="%s"/>\n`, image_url)
+		Image += fmt.Sprintf(`<meta property="og:image" content="%s"/>
+		`, image_url)
 		Twitter_Image += fmt.Sprintf(`
 			<meta property="twitter:image" content="%s"/>
 			<meta name="twitter:card" content="summary_large_image">

@@ -73,15 +73,35 @@ func SetupRouter() *gin.Engine {
 				"message": "invalid data",
 			})
 		} else {
-			if !CheckKey(paramsMap, "title") {
+			scheme := "http"
+			if c.Request.TLS != nil {
+				scheme = "https"
+			}
+			host := c.Request.Host
+			if !CheckKey(paramsMap, "title") &&
+				!CheckKey(paramsMap, "description") &&
+				!CheckKey(paramsMap, "siteurl") &&
+				!CheckKey(paramsMap, "color") &&
+				!CheckKey(paramsMap, "image") {
+				c.JSON(http.StatusBadRequest, gin.H{
+					"status":  http.StatusBadRequest,
+					"message": "You can't leave all items blank.",
+				})
+			} else if paramsMap["title"] == "" &&
+				paramsMap["description"] == "" &&
+				paramsMap["siteurl"] == "" &&
+				paramsMap["color"] == "" &&
+				paramsMap["image"] == "" {
+				c.JSON(http.StatusBadRequest, gin.H{
+					"status":  http.StatusBadRequest,
+					"message": "You can't leave all items blank.",
+				})
+			} else if !CheckKey(paramsMap, "title") {
 				paramsMap["title"] = ""
 			} else if !CheckKey(paramsMap, "description") {
 				paramsMap["description"] = ""
 			} else if !CheckKey(paramsMap, "siteurl") {
-				c.JSON(http.StatusBadRequest, gin.H{
-					"status":  http.StatusBadRequest,
-					"message": "There is no siteurl",
-				})
+				paramsMap["siteurl"] = ""
 			} else if !CheckKey(paramsMap, "sitetype") {
 				c.JSON(http.StatusBadRequest, gin.H{
 					"status":  http.StatusBadRequest,
@@ -107,11 +127,6 @@ func SetupRouter() *gin.Engine {
 						paramsMap["color"],
 						strings.Split(paramsMap["image"], ","),
 					)
-					scheme := "http"
-					if c.Request.TLS != nil {
-						scheme = "https"
-					}
-					host := c.Request.Host
 					completeURL := scheme + "://" + host + "/api?view="
 					c.JSON(http.StatusOK, gin.H{
 						"status":  http.StatusOK,
